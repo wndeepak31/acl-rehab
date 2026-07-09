@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(ATHLETE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  athleteProfile AthleteProfile?
+  protocols      UserProtocol[]
+  
+  // Tracking & Engine Logs
+  painLogs      PainLog[]
+  swellingLogs  SwellingLog[]
+  romLogs       ROMLog[]
+  strengthLogs  StrengthLog[]
+  workoutLogs   WorkoutLog[]
+  weightEngine  WeightProgression[]
+}
+
+enum Role {
+  ADMIN
+  PHYSIO
+  ATHLETE
+}
+
+model AthleteProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  surgeryDate    DateTime // Required for Date Engine
+  surgeryType    String?  // e.g. "ACL Reconstruction Quadriceps Tendon Graft + Medial Meniscus Repair + LEAT"
+  age            Int?
+  height         Float?
+  weight         Float?
+  dominantLeg    String?
+  sport          String?
+  level          String?
+  surgeon        String?
+  hospital       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ---------------------------------------------------------
+// PROTOCOL ENGINE
+// ---------------------------------------------------------
+
+model Protocol {
+  id          String   @id @default(cuid())
+  name        String   
+  description String?
+  phases      Phase[]
+  users       UserProtocol[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Phase {
+  id          String   @id @default(cuid())
+  protocolId  String
+  protocol    Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  name        String   // e.g., "Strength Building"
+  order       Int
+  startWeek   Int
+  endWeek     Int
+  weeks       Week[]
+}
+
+model Week {
+  id        String   @id @default(cuid())
+  phaseId   String
+  phase     Phase    @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  weekNum   Int      // e.g., 11
+  days      Day[]
+}
+
+model Day {
+  id               String   @id @default(cuid())
+  weekId           String
+  week             Week     @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  dayOfWeek        Int      // 1=Monday, 2=Tuesday, etc.
+  workoutTemplateId String?
+  workoutTemplate  WorkoutTemplate? @relation(fields: [workoutTemplateId], references: [id])
+}
+
+model WorkoutTemplate {
+  id          String   @id @default(cuid())
+  name        String   // e.g., "Strength A", "Recovery"
+  description String?
+  days        Day[]
+  exercises   WorkoutExercise[]
+}
+
+// ---------------------------------------------------------
+// EXERCISE LIBRARY
+// ---------------------------------------------------------
+
+model ExerciseLibrary {
+  id               String   @id @default(cuid())
+  name             String
+  equipment        String?
+  video            String?
+  gif              String?
+  description      String?
+  targetMuscles    String?
+  difficulty       String?
+  
+  // Rules
+  phase            String?
+  weekStart        Int?
+  weekEnd          Int?
+  
+  // Specifics
+  progression      String?
+  regression       String?
+  painWarning      String?
+  commonErrors     String?
+  breathing        String?
+  
+  workoutMappings  WorkoutExercise[]
+  weightTracking   WeightProgression[]
+  workoutLogs      WorkoutLog[]
+}
+
+model WorkoutExercise {
+  id                String          @id @default(cuid())
+  workoutTemplateId String
+  workoutTemplate   WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id], onDelete: Cascade)
+  exerciseId        String
+  exercise          ExerciseLibrary @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  
+  sets              Int
+  reps              String
+  tempo             String?
+  rest              String?
+  order             Int
+}
+
+// ---------------------------------------------------------
+// TRACKING & ENGINES
+// ---------------------------------------------------------
+
+model UserProtocol {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  protocolId   String
+  protocol     Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  startDate    DateTime @default(now()) // Can be different from surgeryDate if delayed
+  status       String   @default("ACTIVE")
+}
+
+model WeightProgression {
+  id                     String   @id @default(cuid())
+  userId                 String
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId             String
+  exercise               ExerciseLibrary @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  
+  currentWeight          Float    @default(0)
+  targetWeight           Float    @default(0)
+  increasePercentage     Float    @default(0.05) // 5% by default
+  lastSuccessfulWeight   Float    @default(0)
+  
+  updatedAt              DateTime @updatedAt
+  
+  @@unique([userId, exerciseId])
+}
+
+model WorkoutLog {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId   String
+  exercise     ExerciseLibrary @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  
+  date         DateTime @default(now())
+  completed    Boolean  @default(false)
+  weightUsed   Float?
+  actualSets   Int?
+  actualReps   Int?
+}
+
+model PainLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime @default(now())
+  level      Int      // 0-10
+  notes      String?
+}
+
+model SwellingLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime @default(now())
+  severity   String   // NONE, MILD, MODERATE, SEVERE
+}
+
+model ROMLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime @default(now())
+  flexion    Float?
+  extension  Float?
+}
+
+model StrengthLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime @default(now())
+  lsi        Float    // Limb Symmetry Index
+  notes      String?
+}
