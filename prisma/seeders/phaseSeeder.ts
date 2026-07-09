@@ -12,13 +12,13 @@ export async function seedPhasesAndWeeks(prisma: PrismaClient, protocolId: strin
   };
 
   const dayMapping = [
-    { dayOfWeek: 1, tmpl: "Strength A" }, // Monday
-    { dayOfWeek: 2, tmpl: "Recovery" },   // Tuesday
-    { dayOfWeek: 3, tmpl: "Strength B" }, // Wednesday
-    { dayOfWeek: 4, tmpl: "Recovery" },   // Thursday
-    { dayOfWeek: 5, tmpl: "Strength A" }, // Friday
-    { dayOfWeek: 6, tmpl: "Athletic Control" }, // Saturday
-    { dayOfWeek: 7, tmpl: "Recovery" }    // Sunday
+    { dayOfWeek: 1, tmpl: "Day 1 (Monday) - Strength A (Quad)" },
+    { dayOfWeek: 2, tmpl: "Day 2 (Tuesday) - Recovery" },
+    { dayOfWeek: 3, tmpl: "Day 3 (Wednesday) - Strength B (Posterior)" },
+    { dayOfWeek: 4, tmpl: "Day 4 (Thursday) - Recovery" },
+    { dayOfWeek: 5, tmpl: "Day 5 (Friday) - Strength A Progression" },
+    { dayOfWeek: 6, tmpl: "Day 6 (Saturday) - Athletic Control" },
+    { dayOfWeek: 7, tmpl: "Day 7 (Sunday) - Recovery" }
   ];
 
   const phases = [

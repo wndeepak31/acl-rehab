@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 
 export async function seedWorkouts(prisma: PrismaClient) {
-  // Fetch exercises to map their IDs
   const exercises = await prisma.exerciseLibrary.findMany();
   const exMap = new Map(exercises.map(e => [e.name, e.id]));
 
@@ -13,50 +12,87 @@ export async function seedWorkouts(prisma: PrismaClient) {
 
   const templates = [
     {
-      name: "Strength A",
-      description: "Primary leg strength session",
+      name: "Day 1 (Monday) - Strength A (Quad)",
+      description: "Increase load only if next-day knee is calm",
       exercises: [
-        { name: "Stationary Bike", sets: 1, reps: "10 min", order: 1 },
-        { name: "Leg Press", sets: 4, reps: "8-10", order: 2 },
-        { name: "Squat", sets: 3, reps: "10-12", order: 3 },
-        { name: "Step Up", sets: 3, reps: "10 per leg", order: 4 },
-        { name: "Terminal Knee Extension", sets: 3, reps: "15", order: 5 },
-        { name: "Calf Raise", sets: 3, reps: "15", order: 6 },
-        { name: "Single Leg Balance", sets: 3, reps: "45 sec", order: 7 }
+        { name: "Leg Press", sets: 4, reps: "12", order: 1 },
+        { name: "Box Squat", sets: 4, reps: "10", order: 2 },
+        { name: "Step-Up", sets: 3, reps: "12", order: 3 },
+        { name: "Terminal Knee Extension", sets: 3, reps: "20", order: 4 },
+        { name: "Standing Calf Raise", sets: 4, reps: "20", order: 5 },
+        { name: "Bike", sets: 1, reps: "10-15 min", order: 6 },
+        { name: "Single-leg balance", sets: 5, reps: "30 sec", order: 7 },
+        { name: "Stretch", sets: 1, reps: "10 min", order: 8 }
       ]
     },
     {
-      name: "Strength B",
-      description: "Secondary leg strength (Posterior Chain focus)",
+      name: "Day 2 (Tuesday) - Recovery",
+      description: "No heavy leg training",
       exercises: [
-        { name: "Stationary Bike", sets: 1, reps: "10 min", order: 1 },
-        { name: "Romanian Deadlift", sets: 4, reps: "8-10", order: 2 },
-        { name: "Ham Curl", sets: 3, reps: "10-12", order: 3 },
-        { name: "Bridge", sets: 3, reps: "15", order: 4 },
+        { name: "Mobility", sets: 1, reps: "20 min", order: 1 },
+        { name: "Heel Slides", sets: 1, reps: "10", order: 2 },
+        { name: "Hamstring + Calf Stretch", sets: 2, reps: "30 sec", order: 3 },
+        { name: "Core (Plank, Side Plank)", sets: 3, reps: "45 sec", order: 4 },
+        { name: "Bike", sets: 1, reps: "25-30 min", order: 5 }
+      ]
+    },
+    {
+      name: "Day 3 (Wednesday) - Strength B (Posterior)",
+      description: "Focus on control",
+      exercises: [
+        { name: "Romanian Deadlift", sets: 4, reps: "10", order: 1 },
+        { name: "Hamstring Curl", sets: 4, reps: "12", order: 2 },
+        { name: "Glute Bridge", sets: 4, reps: "15", order: 3 },
+        { name: "Band Walk", sets: 3, reps: "20 steps", order: 4 },
         { name: "Hip Abduction", sets: 3, reps: "15", order: 5 },
-        { name: "Band Walk", sets: 3, reps: "10 steps ea", order: 6 },
-        { name: "Calf Raise", sets: 3, reps: "15", order: 7 }
+        { name: "Bike", sets: 1, reps: "10 min", order: 6 },
+        { name: "Single-leg balance", sets: 3, reps: "30 sec", order: 7 },
+        { name: "Stretch", sets: 1, reps: "10 min", order: 8 }
       ]
     },
     {
-      name: "Recovery",
-      description: "Active recovery and mobility",
+      name: "Day 4 (Thursday) - Recovery",
+      description: "Active recovery only",
       exercises: [
-        { name: "Stationary Bike", sets: 1, reps: "20 min", order: 1 },
-        { name: "Walking", sets: 1, reps: "15 min", order: 2 },
-        { name: "Mobility", sets: 1, reps: "10 min", order: 3 },
-        { name: "Stretching", sets: 1, reps: "10 min", order: 4 }
+        { name: "Mobility + Walking", sets: 1, reps: "20 min", order: 1 },
+        { name: "Bike", sets: 1, reps: "30 min", order: 2 },
+        { name: "Core + Balance", sets: 1, reps: "15 min", order: 3 },
+        { name: "Walk", sets: 1, reps: "20 min", order: 4 }
       ]
     },
     {
-      name: "Athletic Control",
-      description: "Dynamic control and stability",
+      name: "Day 5 (Friday) - Strength A Progression",
+      description: "Increase only 5-10% if criteria met",
       exercises: [
-        { name: "Stationary Bike", sets: 1, reps: "10 min", order: 1 },
-        { name: "Single Leg Balance", sets: 3, reps: "60 sec", order: 2 },
-        { name: "Step Up", sets: 3, reps: "10 per leg", order: 3 },
-        { name: "Squat", sets: 3, reps: "15 (bodyweight)", order: 4 },
-        { name: "Band Walk", sets: 3, reps: "15 steps ea", order: 5 }
+        { name: "Leg Press", sets: 4, reps: "12", order: 1 },
+        { name: "Box Squat", sets: 4, reps: "10", order: 2 },
+        { name: "Step-Up", sets: 3, reps: "12", order: 3 },
+        { name: "Terminal Knee Extension", sets: 3, reps: "20", order: 4 },
+        { name: "Standing Calf Raise", sets: 4, reps: "20", order: 5 },
+        { name: "Bike", sets: 1, reps: "10 min", order: 6 },
+        { name: "Single-leg balance", sets: 5, reps: "30 sec", order: 7 },
+        { name: "Stretch", sets: 1, reps: "10 min", order: 8 }
+      ]
+    },
+    {
+      name: "Day 6 (Saturday) - Athletic Control",
+      description: "Quality over quantity",
+      exercises: [
+        { name: "Step-downs", sets: 3, reps: "10", order: 1 },
+        { name: "Mini Squats", sets: 3, reps: "12", order: 2 },
+        { name: "Hip Strength", sets: 3, reps: "15", order: 3 },
+        { name: "Bike", sets: 1, reps: "15 min", order: 4 },
+        { name: "Single-leg control", sets: 3, reps: "30 sec", order: 5 },
+        { name: "Stretch", sets: 1, reps: "10 min", order: 6 }
+      ]
+    },
+    {
+      name: "Day 7 (Sunday) - Recovery",
+      description: "Prepare for next week. Complete Rest.",
+      exercises: [
+        { name: "Walking + Full Body Stretch", sets: 1, reps: "30-40 min walk", order: 1 },
+        { name: "Mobility", sets: 1, reps: "15 min", order: 2 },
+        { name: "Complete Rest", sets: 1, reps: "All Day", order: 3 }
       ]
     }
   ];
@@ -82,5 +118,5 @@ export async function seedWorkouts(prisma: PrismaClient) {
     }
   }
 
-  console.log("Seeded workouts");
+  console.log("Seeded workouts exactly matching Phase 3 Excel Sheet");
 }
