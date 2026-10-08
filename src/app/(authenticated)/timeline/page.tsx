@@ -1,100 +1,88 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Circle, Clock, Lock } from "lucide-react";
+import { REHAB_PHASES } from "@/lib/progression-engine";
 
 export default function TimelinePage() {
-  const phases = [
-    {
-      id: 1,
-      name: "Phase 1: Protection",
-      duration: "Weeks 0-2",
-      status: "completed",
-      milestones: ["Reduce swelling", "Full extension", "90° flexion"],
-    },
-    {
-      id: 2,
-      name: "Phase 2: ROM & Early Strength",
-      duration: "Weeks 2-6",
-      status: "completed",
-      milestones: ["Full ROM", "Normal gait", "Minimal pain"],
-    },
-    {
-      id: 3,
-      name: "Phase 3: Strength",
-      duration: "Weeks 6-12",
-      status: "current",
-      milestones: ["LSI > 70%", "Jogging progression", "Hop tests baseline"],
-    },
-    {
-      id: 4,
-      name: "Phase 4: Running",
-      duration: "Weeks 12-18",
-      status: "locked",
-      milestones: ["Continuous running", "Basic agility"],
-    },
-    {
-      id: 5,
-      name: "Phase 5: Return to Play",
-      duration: "Months 6-9+",
-      status: "locked",
-      milestones: ["LSI > 90%", "Full sports participation", "Psychological readiness"],
-    }
-  ];
+  // Simulating that the athlete is currently in Phase 3
+  const currentPhaseId = 'PHASE_3';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Recovery Timeline</h1>
-        <p className="text-muted-foreground mt-2">Your roadmap back to the pitch.</p>
+        <h1 className="text-4xl font-extrabold tracking-tight">Recovery Timeline</h1>
+        <p className="text-muted-foreground mt-2 text-lg">Your criteria-based roadmap back to the pitch.</p>
       </div>
 
-      <div className="relative border-l border-muted ml-3 space-y-8 pb-8">
-        {phases.map((phase, index) => (
-          <div key={phase.id} className="relative pl-8">
-            {/* Timeline Icon */}
-            <div className="absolute -left-[17px] top-4 bg-background p-1">
-              {phase.status === "completed" ? (
-                <CheckCircle2 className="h-6 w-6 text-primary" />
-              ) : phase.status === "current" ? (
-                <Clock className="h-6 w-6 text-primary animate-pulse" />
-              ) : (
-                <Lock className="h-6 w-6 text-muted-foreground" />
-              )}
-            </div>
+      <div className="relative border-l-2 border-primary/20 ml-4 space-y-12 pb-8 mt-12">
+        {REHAB_PHASES.map((phase, index) => {
+          const isCompleted = index < REHAB_PHASES.findIndex(p => p.id === currentPhaseId);
+          const isCurrent = phase.id === currentPhaseId;
+          const isLocked = !isCompleted && !isCurrent;
 
-            <Card className={phase.status === "locked" ? "opacity-60" : ""}>
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>{phase.name}</span>
-                  <span className="text-sm font-normal text-muted-foreground">{phase.duration}</span>
-                </CardTitle>
-                <CardDescription>
-                  {phase.status === "completed" && "You have successfully completed this phase."}
-                  {phase.status === "current" && "You are currently in this phase."}
-                  {phase.status === "locked" && "Unlock this phase by completing previous milestones."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <h4 className="text-sm font-semibold mb-3">Key Milestones:</h4>
-                <ul className="space-y-2">
-                  {phase.milestones.map((milestone, i) => (
-                    <li key={i} className="flex items-start text-sm">
-                      {phase.status === "completed" ? (
-                        <CheckCircle2 className="h-4 w-4 mr-2 text-primary shrink-0 mt-0.5" />
-                      ) : phase.status === "current" && i === 0 ? (
-                        <CheckCircle2 className="h-4 w-4 mr-2 text-primary shrink-0 mt-0.5" />
-                      ) : (
-                        <Circle className="h-4 w-4 mr-2 text-muted-foreground shrink-0 mt-0.5" />
-                      )}
-                      <span className={phase.status === "completed" || (phase.status === "current" && i === 0) ? "text-foreground" : "text-muted-foreground"}>
-                        {milestone}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        ))}
+          return (
+            <div key={phase.id} className="relative pl-10">
+              {/* Timeline Icon */}
+              <div className="absolute -left-[19px] top-6 bg-background p-1 rounded-full">
+                {isCompleted ? (
+                  <div className="bg-green-500/20 rounded-full p-1"><CheckCircle2 className="h-7 w-7 text-green-500" /></div>
+                ) : isCurrent ? (
+                  <div className="bg-primary/20 rounded-full p-1"><Clock className="h-7 w-7 text-primary animate-pulse" /></div>
+                ) : (
+                  <div className="bg-muted rounded-full p-1"><Lock className="h-7 w-7 text-muted-foreground" /></div>
+                )}
+              </div>
+
+              <Card className={`transition-all duration-300 ${isLocked ? "opacity-60 bg-muted/5 border-dashed" : isCurrent ? "border-primary shadow-lg scale-[1.02]" : "bg-muted/10 border-green-500/30"}`}>
+                <CardHeader>
+                  <CardTitle className="flex flex-col md:flex-row justify-between md:items-center gap-2">
+                    <span className="text-2xl">{phase.name}</span>
+                    <span className="text-sm font-bold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+                      Timeline: {phase.expectedDurationWeeks[0]}-{phase.expectedDurationWeeks[1]} Weeks
+                    </span>
+                  </CardTitle>
+                  <CardDescription className="text-base mt-2 text-foreground/80">
+                    {phase.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid md:grid-cols-2 gap-6 pt-4 border-t border-border/50">
+                  
+                  <div>
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Entry Requirements:</h4>
+                    <ul className="space-y-2">
+                      {phase.entryCriteria.map((criterion, i) => (
+                        <li key={i} className="flex items-start text-sm">
+                          <CheckCircle2 className="h-4 w-4 mr-2 text-green-500 shrink-0 mt-0.5" />
+                          <span className="text-muted-foreground">{criterion}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-primary mb-3">Exit Milestones:</h4>
+                    <ul className="space-y-2">
+                      {phase.exitCriteria.map((criterion, i) => (
+                        <li key={i} className="flex items-start text-sm font-medium">
+                          {isCompleted ? (
+                            <CheckCircle2 className="h-4 w-4 mr-2 text-green-500 shrink-0 mt-0.5" />
+                          ) : isCurrent ? (
+                            <Circle className="h-4 w-4 mr-2 text-primary shrink-0 mt-0.5" />
+                          ) : (
+                            <Lock className="h-4 w-4 mr-2 text-muted-foreground shrink-0 mt-0.5" />
+                          )}
+                          <span className={isCompleted ? "text-muted-foreground" : "text-foreground"}>
+                            {criterion}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                </CardContent>
+              </Card>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
