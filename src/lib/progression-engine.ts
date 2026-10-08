@@ -135,7 +135,7 @@ export function evaluateReadiness(logs: { pain: number; swelling: 'NONE'|'MILD'|
   } else if (logs.pain > 2) {
     score -= 15;
     reasons.push('Mild pain present.');
-    status = status === 'RED' ? 'RED' : 'YELLOW';
+    status = 'YELLOW';
   }
 
   if (logs.swelling === 'SEVERE') {
@@ -145,7 +145,9 @@ export function evaluateReadiness(logs: { pain: number; swelling: 'NONE'|'MILD'|
   } else if (logs.swelling === 'MODERATE') {
     score -= 25;
     reasons.push('Moderate swelling reported.');
-    status = 'YELLOW';
+    if (status !== 'RED') {
+      status = 'YELLOW';
+    }
   }
 
   if (logs.sleep === 'POOR') {
