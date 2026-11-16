@@ -1,8 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Activity, Calendar, Award, Edit3, HeartPulse, Stethoscope, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getPostOpStatus } from "@/lib/progression-engine";
 
 export default function ProfilePage() {
+  const postOp = getPostOpStatus();
   const profile = {
     name: "Nishad Deepak Rambhavan",
     email: "nishad@example.com",
@@ -111,7 +113,7 @@ export default function ProfilePage() {
                   <Calendar className="h-4 w-4 mr-2 text-primary" /> Date of Surgery
                 </p>
                 <p className="text-xl font-bold">{profile.surgeryDate}</p>
-                <p className="text-sm text-muted-foreground mt-1">78 Days Post-Op</p>
+                <p className="text-sm text-muted-foreground mt-1">{postOp.daysPostOp} Days Post-Op • Week {postOp.weekPostOp}</p>
               </div>
               
               <div className="bg-background p-4 rounded-xl border shadow-sm">

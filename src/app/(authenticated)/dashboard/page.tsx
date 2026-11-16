@@ -22,7 +22,9 @@ export default function DashboardPage() {
     <div className="space-y-8 pb-10">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Recovery Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Day 78 Post-Op • Week 11</p>
+        <p className="text-muted-foreground mt-2">
+          Day {todaySession.postOp.daysPostOp} Post-Op • Week {todaySession.postOp.weekPostOp}
+        </p>
       </div>
 
       {/* Readiness Banner */}
@@ -56,9 +58,9 @@ export default function DashboardPage() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Phase Progress</span>
-                <span>~60%</span>
+                <span>~{todaySession.postOp.phaseProgress}%</span>
               </div>
-              <Progress value={60} />
+              <Progress value={todaySession.postOp.phaseProgress} />
             </div>
             <div className="mt-4 pt-4 border-t border-primary/10">
               <h4 className="text-sm font-semibold mb-2">Current Limiters to Phase 4:</h4>

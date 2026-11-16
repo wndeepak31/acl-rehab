@@ -1,16 +1,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Circle, Clock, Lock } from "lucide-react";
-import { REHAB_PHASES } from "@/lib/progression-engine";
+import { REHAB_PHASES, getPostOpStatus } from "@/lib/progression-engine";
 
 export default function TimelinePage() {
-  // Simulating that the athlete is currently in Phase 3
-  const currentPhaseId = 'PHASE_3';
+  const postOp = getPostOpStatus();
+  const currentPhaseId = postOp.currentPhase.id;
 
   return (
     <div className="space-y-8 max-w-4xl">
       <div>
         <h1 className="text-4xl font-extrabold tracking-tight">Recovery Timeline</h1>
-        <p className="text-muted-foreground mt-2 text-lg">Your criteria-based roadmap back to the pitch.</p>
+        <p className="text-muted-foreground mt-2 text-lg">
+          Day {postOp.daysPostOp} Post-Op • Week {postOp.weekPostOp} — Your criteria-based roadmap back to the pitch.
+        </p>
       </div>
 
       <div className="relative border-l-2 border-primary/20 ml-4 space-y-12 pb-8 mt-12">

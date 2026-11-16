@@ -1,4 +1,7 @@
 // src/lib/progression-engine.ts
+import { differenceInDays, getISODay } from 'date-fns';
+
+export const SURGERY_DATE = new Date(2026, 3, 22); // April 22, 2026
 
 export type ReadinessStatus = 'GREEN' | 'YELLOW' | 'RED';
 
@@ -158,48 +161,51 @@ export function evaluateReadiness(logs: { pain: number; swelling: 'NONE'|'MILD'|
   return { status, score: Math.max(0, score), reasons };
 }
 
-// Simulates the progression engine providing the "Today" view based on a hypothetical Day 78 state.
-export function generateTodaySession() {
-  // Hardcoded current state for the dashboard demonstration of Day 78 logic
+export function getPostOpStatus(surgeryDate: Date = SURGERY_DATE) {
+  const today = new Date();
+  const daysPostOp = Math.max(0, differenceInDays(today, surgeryDate));
+  const weekPostOp = Math.max(1, Math.floor(daysPostOp / 7) + 1);
+  const dayOfWeekIndex = getISODay(today) - 1; // 0 = Monday ... 6 = Sunday
+
+  const currentPhase =
+    REHAB_PHASES.find(
+      (p) => weekPostOp >= p.expectedDurationWeeks[0] && weekPostOp < p.expectedDurationWeeks[1]
+    ) || REHAB_PHASES[REHAB_PHASES.length - 1];
+
+  const [startWk, endWk] = currentPhase.expectedDurationWeeks;
+  const phaseDurationDays = Math.max(1, (endWk - startWk) * 7);
+  const daysIntoPhase = Math.max(0, daysPostOp - startWk * 7);
+  const phaseProgress = Math.min(100, Math.max(5, Math.round((daysIntoPhase / phaseDurationDays) * 100)));
+
   return {
-    phase: REHAB_PHASES[2], // Phase 3
+    surgeryDate,
+    daysPostOp,
+    weekPostOp,
+    dayOfWeekIndex,
+    currentPhase,
+    phaseProgress,
+  };
+}
+
+// Dynamically generates the "Today" view based on current post-op status and day of week.
+export function generateTodaySession() {
+  const postOp = getPostOpStatus();
+  const weekly = generateWeeklySchedule();
+  const todayWorkout = weekly[postOp.dayOfWeekIndex] || weekly[0];
+  const estimatedDuration = todayWorkout.blocks.reduce(
+    (sum, b) => sum + (parseInt(b.duration, 10) || 0),
+    0
+  );
+
+  return {
+    postOp,
+    dayName: todayWorkout.day,
+    sessionType: todayWorkout.type,
+    phase: postOp.currentPhase,
     readiness: evaluateReadiness({ pain: 2, swelling: 'MILD', sleep: 'GOOD' }),
-    sessionGoal: 'Build unilateral lower-limb strength and controlled eccentrics',
-    estimatedDuration: 55,
-    blocks: [
-      {
-        name: 'Warm-up',
-        duration: '10 min',
-        exercises: [
-          { name: 'Stationary Bike', sets: 1, reps: '10 mins', load: 'Light', targetRPE: 3, rationale: 'Increase blood flow and joint lubrication' }
-        ]
-      },
-      {
-        name: 'Strength Block',
-        duration: '30 min',
-        exercises: [
-          { name: 'Goblet Squat', sets: 4, reps: '8-10', load: '15kg', targetRPE: 7, rationale: 'Bilateral strength foundation', progressionTarget: 'Progressing from bodyweight squats' },
-          { name: 'Split Squat', sets: 3, reps: '8 per leg', load: '2x 10kg DB', targetRPE: 7, rationale: 'Unilateral quad and glute strength', progressionTarget: 'New exercise introduced to challenge unilateral control' },
-          { name: 'Romanian Deadlift (RDL)', sets: 3, reps: '10', load: '40kg', targetRPE: 6, rationale: 'Posterior chain loading', progressionTarget: 'Progressed load from last week' }
-        ]
-      },
-      {
-        name: 'Upper Body Maintenance',
-        duration: '15 min',
-        exercises: [
-          { name: 'Dumbbell Bench Press', sets: 4, reps: '8-10', load: '2x 20kg', targetRPE: 7, rationale: 'Maintain upper body push strength while leg recovers', progressionTarget: 'Maintain' },
-          { name: 'Seated Cable Row', sets: 3, reps: '12', load: '45kg', targetRPE: 6, rationale: 'Maintain posterior chain / upper body pull', progressionTarget: 'Maintain' }
-        ]
-      },
-      {
-        name: 'Control / Stability',
-        duration: '10 min',
-        exercises: [
-          { name: 'Single Leg Balance on Airex', sets: 3, reps: '45s', load: 'Bodyweight', targetRPE: 5, rationale: 'Proprioception and ankle stability', progressionTarget: 'Maintain' },
-          { name: 'Monster Walks', sets: 3, reps: '15m', load: 'Heavy Band', targetRPE: 6, rationale: 'Glute medius activation', progressionTarget: 'Increased band resistance' }
-        ]
-      }
-    ]
+    sessionGoal: `${todayWorkout.day} (${todayWorkout.type}) — ${todayWorkout.focus}`,
+    estimatedDuration,
+    blocks: todayWorkout.blocks,
   };
 }
 

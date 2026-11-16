@@ -5,13 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { PlayCircle, Info, Activity, Flame, Scale, CheckCircle2, AlertTriangle, ChevronDown, ChevronUp, Calendar } from "lucide-react";
-import { generateWeeklySchedule, evaluateReadiness } from "@/lib/progression-engine";
+import { generateWeeklySchedule, evaluateReadiness, getPostOpStatus } from "@/lib/progression-engine";
 
 export default function TodayClient({ data }: { data: any }) {
+  const postOp = getPostOpStatus();
+  const daysPostOp = data?.status?.daysSinceSurgery ?? postOp.daysPostOp;
+  const weekPostOp = data?.status?.weekNumber ?? postOp.weekPostOp;
   const weeklySchedule = generateWeeklySchedule();
   const readiness = evaluateReadiness({ pain: 2, swelling: 'MILD', sleep: 'GOOD' }); // Hardcoded for demo
   
-  const [selectedDayIdx, setSelectedDayIdx] = useState(0); // Default to Monday
+  const [selectedDayIdx, setSelectedDayIdx] = useState(postOp.dayOfWeekIndex);
   const todaySession = weeklySchedule[selectedDayIdx];
 
   const [completedEx, setCompletedEx] = useState<string[]>([]);
@@ -56,7 +59,9 @@ export default function TodayClient({ data }: { data: any }) {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight">Weekly Program</h1>
-            <p className="text-lg text-primary font-medium mt-1">Week 11 • Phase 3: Strength</p>
+            <p className="text-lg text-primary font-medium mt-1">
+              Day {daysPostOp} Post-Op • Week {weekPostOp} • {postOp.currentPhase.name}
+            </p>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-sm text-muted-foreground font-semibold uppercase tracking-wider mb-1">Session Progress</span>
